@@ -73,7 +73,7 @@ public class ProcessQueueMasterThread extends Thread {
 	private final DetailQueueDTO config;
 
 	/** The params. */
-	public HashMap<String, String> params;
+	public static HashMap<String, String> params;
 
 	/**
 	 * Instantiates a new process queue master thread.
@@ -137,7 +137,8 @@ public class ProcessQueueMasterThread extends Thread {
 			} finally {
 				long endTime = System.nanoTime(); // Se guarda el tiempo final del proceso.
 				long duration = (endTime - startTime); // Se calcula el tiempo que tomo procesar los datos.
-				NewRelicImpl.addNewRelicMetric("QueueProcessorAgent", duration / 1000000); // Se manda la informacion de
+				long timeDuration = duration / 1000000;
+				NewRelicImpl.addNewRelicMetric("QueueProcessorAgent", timeDuration); // Se manda la informacion de
 																							// la duracion del proceso a
 																							// NewRelic como metrica.
 				startTime = 0;
@@ -161,7 +162,7 @@ public class ProcessQueueMasterThread extends Thread {
 	 * @return the long
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public long processTrama(ReadFilesConfig readConfig, long startTime, String tramaComplete) throws IOException {
+	public long processTrama(ReadFilesConfig readConfig, long startTime, String tramaComplete) throws Exception {
 		if (tramaComplete != null) {
 			startTime = System.nanoTime();
 			String[] trama = tramaComplete.split("\\|");
@@ -172,7 +173,11 @@ public class ProcessQueueMasterThread extends Thread {
 			if (detailEvent != null) {
 				LOGGER.info("Trama: " + tramaComplete + " Evento: " + detailEvent.getName() + " ProductId: "
 						+ detailEvent.getDefaultProduct());
-				methodPost(obtainRequest(trama, detailEvent));
+				String request = obtainRequest(trama, detailEvent);
+
+				if (request != null) {
+					methodPost(request);
+				}
 
 			} else {
 				LOGGER.info("Trama no aceptada, por no tener evento valido: " + tramaComplete);
@@ -374,9 +379,8 @@ public class ProcessQueueMasterThread extends Thread {
 			in.close();
 			con.disconnect();
 			LOGGER.info(content.toString());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOGGER.error("ERROR: en api Notifyevent: " + e.getMessage());
-			e.printStackTrace();
 		}
 		return content.toString();
 	}
