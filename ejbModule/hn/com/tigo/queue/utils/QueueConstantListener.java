@@ -1,5 +1,6 @@
 package hn.com.tigo.queue.utils;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class QueueConstantListener.
  * 
@@ -77,13 +78,21 @@ public final class QueueConstantListener {
 	/** Attribute that determine a Constant of HANDLER. */
 	public static final String HANDLER = "handler";
 	
+	/** The Constant UNABLE_INITIALIZE. */
 	public static final String UNABLE_INITIALIZE = "Unable to initialize : ";
 	
+	/** The Constant COULD_NOT_CLOSE. */
 	public static final String COULD_NOT_CLOSE = "Could not close the database";
 	
+	/** The Constant TRANSACTION_ID. */
 	public static final String TRANSACTION_ID = "Transaction id cpe: ";
 	
+	/** The Constant CODE. */
 	public static final String CODE = ", code: ";
 	
+	/** The Constant DESCRIPTION. */
 	public static final String DESCRIPTION = ", description: ";
+	
+	/** The Constant ERROR_CONNECTION. */
+	public static final String ERROR_CONNECTION = "No se logro realizar conexion a base de datos ";
 }

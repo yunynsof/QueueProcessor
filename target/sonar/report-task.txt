@@ -2,5 +2,5 @@ projectKey=hn.com.tigo.ocep:QueueProcessor
 serverUrl=http://localhost:9000
 serverVersion=7.0.0.36138
 dashboardUrl=http://localhost:9000/dashboard/index/hn.com.tigo.ocep:QueueProcessor
-ceTaskId=AYLRjkXReT7O9oP9wZEB
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AYLRjkXReT7O9oP9wZEB
+ceTaskId=AYLSEJj5eT7O9oP9wZEE
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYLSEJj5eT7O9oP9wZEE

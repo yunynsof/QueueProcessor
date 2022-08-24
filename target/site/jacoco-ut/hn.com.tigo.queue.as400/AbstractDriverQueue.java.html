@@ -27,7 +27,7 @@ import hn.com.tigo.queue.dto.DetailQueueDTO;
 public class AbstractDriverQueue {
 
 	/** The Constant LOGGER. */
-<span class="nc" id="L30">	private static final Logger LOGGER = Logger.getLogger(AbstractDriverQueue.class);</span>
+<span class="fc" id="L30">	private static final Logger LOGGER = Logger.getLogger(AbstractDriverQueue.class);</span>
 
 	/** The Constant PATH of the queue. */
 	private static final String PATH = &quot;/QSYS.LIB/%1s.LIB/%2s.DTAQ&quot;;
@@ -46,11 +46,11 @@ public class AbstractDriverQueue {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public AbstractDriverQueue(final DetailQueueDTO config) throws AS400SecurityException, IOException {
-<span class="nc" id="L49">		super();</span>
-<span class="nc" id="L50">		this.config = config;</span>
-<span class="nc" id="L51">		this.as400 = new AS400(config.getQueueIPAddress(), config.getQueueUser(), config.getQueuePassword());</span>
+<span class="fc" id="L49">		super();</span>
+<span class="fc" id="L50">		this.config = config;</span>
+<span class="fc" id="L51">		this.as400 = new AS400(config.getQueueIPAddress(), config.getQueueUser(), config.getQueuePassword());</span>
 		// this.as400.connectToPort(446);
-<span class="nc" id="L53">	}</span>
+<span class="fc" id="L53">	}</span>
 
 	/**
 	 * Open queue.
@@ -60,12 +60,12 @@ public class AbstractDriverQueue {
 	 */
 	public DataQueue openQueue() throws Exception {
 		try {
-<span class="nc" id="L63">			as400.connectService(AS400.DATAQUEUE);</span>
+<span class="fc" id="L63">			as400.connectService(AS400.DATAQUEUE);</span>
 <span class="nc" id="L64">		} catch (AS400SecurityException | IOException e) {</span>
 <span class="nc" id="L65">			LOGGER.error(e.getMessage());</span>
 <span class="nc" id="L66">			throw new Exception(e.getMessage());</span>
-<span class="nc" id="L67">		}</span>
-<span class="nc" id="L68">		return new DataQueue(as400, String.format(PATH, config.getQueueLibName(), config.getQueueName()));</span>
+<span class="fc" id="L67">		}</span>
+<span class="fc" id="L68">		return new DataQueue(as400, String.format(PATH, config.getQueueLibName(), config.getQueueName()));</span>
 	}
 
 	/**
@@ -75,18 +75,18 @@ public class AbstractDriverQueue {
 	 * @throws Exception the exception
 	 */
 	public String readQueue() throws Exception {
-<span class="nc" id="L78">		String result = null;</span>
-<span class="nc" id="L79">		final DataQueue queue = openQueue();</span>
+<span class="fc" id="L78">		String result = null;</span>
+<span class="fc" id="L79">		final DataQueue queue = openQueue();</span>
 		try {
-<span class="nc" id="L81">			final DataQueueEntry entity = queue.read();</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">			if (entity != null) {</span>
+<span class="fc" id="L81">			final DataQueueEntry entity = queue.read();</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">			if (entity != null) {</span>
 <span class="nc" id="L83">				result = entity.getString();</span>
 			}
 <span class="nc" id="L85">		} catch (AS400SecurityException | ErrorCompletingRequestException | IOException | IllegalObjectTypeException</span>
 				| InterruptedException | ObjectDoesNotExistException e) {
 <span class="nc" id="L87">			throw new Exception(e.getMessage());</span>
-<span class="nc" id="L88">		}</span>
-<span class="nc" id="L89">		return result;</span>
+<span class="fc" id="L88">		}</span>
+<span class="fc" id="L89">		return result;</span>
 	}
 
 	/**

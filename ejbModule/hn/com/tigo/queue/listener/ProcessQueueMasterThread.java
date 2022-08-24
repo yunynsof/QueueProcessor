@@ -14,8 +14,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -63,9 +63,6 @@ public class ProcessQueueMasterThread extends Thread {
 	 */
 	private ThreadPoolExecutor executorService;
 
-	/** The working queue. */
-	private BlockingQueue<Runnable> workingQueue;
-
 	/** The state. */
 	private States state;
 
@@ -73,7 +70,7 @@ public class ProcessQueueMasterThread extends Thread {
 	private final DetailQueueDTO config;
 
 	/** The params. */
-	public static HashMap<String, String> params;
+	private Map<String, String> params;
 
 	/**
 	 * Instantiates a new process queue master thread.
@@ -95,7 +92,7 @@ public class ProcessQueueMasterThread extends Thread {
 	 * Method that allow to initialize the executor thread.
 	 */
 	public void initialize() {
-		workingQueue = new ArrayBlockingQueue<Runnable>(1);
+		BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(1);
 		LOGGER.info("workingQueue correctly");
 		executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MILLISECONDS, workingQueue);
 		// Starting master thread
@@ -120,8 +117,10 @@ public class ProcessQueueMasterThread extends Thread {
 		getConnection();
 		AbstractDriverQueue connqueue = null;
 		while (state == States.STARTED) {
+			
 			ReadFilesConfig readConfig = null;
 			long startTime = 0;
+			
 			try {
 				readConfig = new ReadFilesConfig();
 				if (connqueue == null) {
@@ -142,13 +141,12 @@ public class ProcessQueueMasterThread extends Thread {
 																							// la duracion del proceso a
 																							// NewRelic como metrica.
 				startTime = 0;
-				if (connqueue != null) {
-					if (state != States.STARTED) {
+				if (connqueue != null && state != States.STARTED) {
 						connqueue.disconnectService();
 						connqueue = null;
-					}
 				}
 			}
+			state = States.SHUTTINGDOWN;
 		}
 		executorService.shutdown();
 	}
@@ -160,9 +158,8 @@ public class ProcessQueueMasterThread extends Thread {
 	 * @param startTime the start time
 	 * @param tramaComplete the trama complete
 	 * @return the long
-	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public long processTrama(ReadFilesConfig readConfig, long startTime, String tramaComplete) throws Exception {
+	public long processTrama(ReadFilesConfig readConfig, long startTime, String tramaComplete) throws IOException  {
 		if (tramaComplete != null) {
 			startTime = System.nanoTime();
 			String[] trama = tramaComplete.split("\\|");
@@ -201,15 +198,16 @@ public class ProcessQueueMasterThread extends Thread {
 		String uuid = UUID.randomUUID().toString();
 		Calendar cycleCalendar = Calendar.getInstance();
 		final SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+		String split = params.get("SUBSCRIBER_SPLIT");
 
 		switch (evenType) {
 		case "SEGUROS":
-			String[] subscriber = trama[2].split(params.get("SUBSCRIBER_SPLIT"));
+			String[] subscriber = trama[2].split(split);
 			String subscId = "";
 			if (subscriber.length > 1) {
 				subscId = subscriber[1];
 			} else {
-				subscriber = trama[3].split(params.get("SUBSCRIBER_SPLIT"));
+				subscriber = trama[3].split(split);
 				subscId = subscriber[1];
 			}
 			NotifyMessageDTO object = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId,
@@ -218,12 +216,12 @@ public class ProcessQueueMasterThread extends Thread {
 			return gson.toJson(object);
 
 		case "FACTURACION":
-			String[] subscriber2 = trama[2].split(params.get("SUBSCRIBER_SPLIT"));
+			String[] subscriber2 = trama[2].split(split);
 			String subscId2 = "";
 			if (subscriber2.length > 1) {
 				subscId2 = subscriber2[1];
 			} else {
-				subscriber2 = trama[3].split(params.get("SUBSCRIBER_SPLIT"));
+				subscriber2 = trama[3].split(split);
 				subscId2 = subscriber2[1];
 			}
 			NotifyMessageDTO object2 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId2,
@@ -232,12 +230,12 @@ public class ProcessQueueMasterThread extends Thread {
 			return gson2.toJson(object2);
 
 		case "PAGOS":
-			String[] subscriber3 = trama[2].split(params.get("SUBSCRIBER_SPLIT"));
+			String[] subscriber3 = trama[2].split(split);
 			String subscId3 = "";
 			if (subscriber3.length > 1) {
 				subscId3 = subscriber3[1];
 			} else {
-				subscriber3 = trama[3].split(params.get("SUBSCRIBER_SPLIT"));
+				subscriber3 = trama[3].split(split);
 				subscId3 = subscriber3[1];
 			}
 			NotifyMessageDTO object3 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId3,
@@ -246,12 +244,12 @@ public class ProcessQueueMasterThread extends Thread {
 			return gson3.toJson(object3);
 
 		case "CONSULTA":
-			String[] subscriber4 = trama[2].split(params.get("SUBSCRIBER_SPLIT"));
+			String[] subscriber4 = trama[2].split(split);
 			String subscId4 = "";
 			if (subscriber4.length > 1) {
 				subscId4 = subscriber4[1];
 			} else {
-				subscriber4 = trama[3].split(params.get("SUBSCRIBER_SPLIT"));
+				subscriber4 = trama[3].split(split);
 				subscId4 = subscriber4[1];
 			}
 			NotifyMessageDTO object4 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId4,
@@ -260,21 +258,21 @@ public class ProcessQueueMasterThread extends Thread {
 			return gson4.toJson(object4);
 
 		case "PAGOS_DEACTIVATE":
-			String[] subscriber5 = trama[2].split(params.get("SUBSCRIBER_SPLIT"));
+			String[] subscriber5 = trama[2].split(split);
 			String subscId5 = "";
 			if (subscriber5.length > 1) {
 				subscId5 = subscriber5[1];
 			} else {
-				subscriber5 = trama[3].split(params.get("SUBSCRIBER_SPLIT"));
+				subscriber5 = trama[3].split(split);
 				subscId5 = subscriber5[1];
 			}
 			NotifyMessageDTO object5 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId5,
 					df.format(cycleCalendar.getTime()));
 			Gson gson5 = new Gson();
 			return gson5.toJson(object5);
+		default:
+			return request;
 		}
-
-		return request;
 	}
 
 	/**
@@ -351,7 +349,7 @@ public class ProcessQueueMasterThread extends Thread {
 	 * @return the string
 	 */
 	private String methodPost(String request) {
-		StringBuffer content = null;
+		StringBuilder content = null;
 		try {
 
 			String urlFinal = params.get("URL_NOTIFY_EVENT");
@@ -372,7 +370,7 @@ public class ProcessQueueMasterThread extends Thread {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
-			content = new StringBuffer();
+			content = new StringBuilder();
 			while ((inputLine = in.readLine()) != null) {
 				content.append(inputLine);
 			}
@@ -381,6 +379,7 @@ public class ProcessQueueMasterThread extends Thread {
 			LOGGER.info(content.toString());
 		} catch (Exception e) {
 			LOGGER.error("ERROR: en api Notifyevent: " + e.getMessage());
+			return "";
 		}
 		return content.toString();
 	}
@@ -396,12 +395,11 @@ public class ProcessQueueMasterThread extends Thread {
 		OcepManager manager = null;
 		try {
 			ServiceSessionEJBLocal<OcepManager> serviceSession = ServiceSessionEJB.getInstance();
-			manager = (OcepManager) serviceSession.getSessionDataSource(OcepManager.class,
+			manager = serviceSession.getSessionDataSource(OcepManager.class,
 					QueueConstantListener.DATASOURCE_CPE);
 			params = manager.listAllParam();
-		} catch (Exception e) {
-			state = States.SHUTTINGDOWN;
-			LOGGER.error(QueueConstantListener.UNABLE_INITIALIZE + e.getMessage(), e);
+		} catch (PersistenceException e) {
+			LOGGER.error(QueueConstantListener.ERROR_CONNECTION + e.getMessage(), e);
 		} finally {
 			if (manager != null) {
 				try {
@@ -413,13 +411,15 @@ public class ProcessQueueMasterThread extends Thread {
 		}
 	}
 
+
+
 	/**
-	 * Gets the executor service.
+	 * Sets the params.
 	 *
-	 * @return the executor service
+	 * @param params the params
 	 */
-	public ThreadPoolExecutor getExecutorService() {
-		return executorService;
+	public void setParams(Map<String, String> params) {
+		this.params = params;
 	}
 
 }

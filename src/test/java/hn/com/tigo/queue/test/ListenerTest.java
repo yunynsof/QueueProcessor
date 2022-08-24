@@ -1,11 +1,9 @@
 package hn.com.tigo.queue.test;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -18,7 +16,7 @@ public class ListenerTest {
 	@Test
 	public void test() {
 		DetailQueueDTO queue = new DetailQueueDTO();
-		queue.setQueueIPAddress("192.168.0.231");
+		queue.setQueueIPAddress("192.168.0.7");
 		queue.setQueueUser("USRCPE");
 		queue.setQueuePassword("SRCP2015");
 		queue.setQueuelibName("V4STCD");
@@ -26,9 +24,12 @@ public class ListenerTest {
 		queue.setQueueSplit("|");
 		
 		ProcessQueueMasterThread thread = new ProcessQueueMasterThread(queue);
-		thread.params = new HashMap<String, String>();
-		thread.params.put("SUBSCRIBER_SPLIT", "=");
-		thread.params.put("URL_NOTIFY_EVENT", "http://192.168.159.46:7004/NotifyEvent/NotifyQueue/dist");
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("SUBSCRIBER_SPLIT", "=");
+		params.put("URL_NOTIFY_EVENT", "http://192.168.159.46:7004/NotifyEvent/NotifyQueue/dist");
+		thread.setParams(params);
+		thread.run();
+		
 		ReadFilesConfig readConfig = new ReadFilesConfig();
 		long startTime = 0;
 		String tramaComplete = "SEGUROS|SEGUROS|MSISDN=94517500|CUENTA_CLIENTE=0801198716839CCHN|CUENTA_FACTURACION=8000066364|ID_PEDIDO_VENTA=1521895736507599298|NUMERO_FACTURA=3330|FECHAEMISION=20200213|IMEI=869175040414278|TOTAL_FACTURADO=100.00|TIPO_FACTURA=FC2|USUARIO=HCORDERO|MOTIVO=PAGO|TEST_QA|                 123432 ";
@@ -60,7 +61,7 @@ public class ListenerTest {
 			
 			try {
 				thread.processTrama(readConfig, startTime, list.get(i));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

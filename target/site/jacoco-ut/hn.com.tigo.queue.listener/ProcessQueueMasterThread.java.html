@@ -14,8 +14,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -63,9 +63,6 @@ public class ProcessQueueMasterThread extends Thread {
 	 */
 	private ThreadPoolExecutor executorService;
 
-	/** The working queue. */
-	private BlockingQueue&lt;Runnable&gt; workingQueue;
-
 	/** The state. */
 	private States state;
 
@@ -73,43 +70,43 @@ public class ProcessQueueMasterThread extends Thread {
 	private final DetailQueueDTO config;
 
 	/** The params. */
-	public HashMap&lt;String, String&gt; params;
+	private Map&lt;String, String&gt; params;
 
 	/**
 	 * Instantiates a new process queue master thread.
 	 *
 	 * @param config the config
 	 */
-<span class="fc" id="L83">	public ProcessQueueMasterThread(final DetailQueueDTO config) {</span>
+<span class="fc" id="L80">	public ProcessQueueMasterThread(final DetailQueueDTO config) {</span>
 
-<span class="fc" id="L85">		this.config = config;</span>
+<span class="fc" id="L82">		this.config = config;</span>
 		try {
-<span class="fc" id="L87">			initialize();</span>
-<span class="nc" id="L88">		} catch (Exception e) {</span>
-<span class="nc" id="L89">			state = States.SHUTTINGDOWN;</span>
-<span class="nc" id="L90">			LOGGER.error(QueueConstantListener.UNABLE_INITIALIZE + e.getMessage(), e);</span>
-<span class="fc" id="L91">		}</span>
-<span class="fc" id="L92">	}</span>
+<span class="fc" id="L84">			initialize();</span>
+<span class="nc" id="L85">		} catch (Exception e) {</span>
+<span class="nc" id="L86">			state = States.SHUTTINGDOWN;</span>
+<span class="nc" id="L87">			LOGGER.error(QueueConstantListener.UNABLE_INITIALIZE + e.getMessage(), e);</span>
+<span class="fc" id="L88">		}</span>
+<span class="fc" id="L89">	}</span>
 
 	/**
 	 * Method that allow to initialize the executor thread.
 	 */
 	public void initialize() {
-<span class="fc" id="L98">		workingQueue = new ArrayBlockingQueue&lt;Runnable&gt;(1);</span>
-<span class="fc" id="L99">		LOGGER.info(&quot;workingQueue correctly&quot;);</span>
-<span class="fc" id="L100">		executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MILLISECONDS, workingQueue);</span>
+<span class="fc" id="L95">		BlockingQueue&lt;Runnable&gt; workingQueue = new ArrayBlockingQueue&lt;Runnable&gt;(1);</span>
+<span class="fc" id="L96">		LOGGER.info(&quot;workingQueue correctly&quot;);</span>
+<span class="fc" id="L97">		executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MILLISECONDS, workingQueue);</span>
 		// Starting master thread
-<span class="fc" id="L102">		state = States.STARTED;</span>
-<span class="fc" id="L103">		LOGGER.info(&quot;Iinitialize Finalized.&quot;);</span>
-<span class="fc" id="L104">	}</span>
+<span class="fc" id="L99">		state = States.STARTED;</span>
+<span class="fc" id="L100">		LOGGER.info(&quot;Iinitialize Finalized.&quot;);</span>
+<span class="fc" id="L101">	}</span>
 
 	/**
 	 * Shutdown.
 	 */
 	public void shutdown() {
-<span class="nc" id="L110">		state = States.SHUTTINGDOWN;</span>
-<span class="nc" id="L111">		executorService.shutdownNow();</span>
-<span class="nc" id="L112">	}</span>
+<span class="nc" id="L107">		state = States.SHUTTINGDOWN;</span>
+<span class="nc" id="L108">		executorService.shutdownNow();</span>
+<span class="nc" id="L109">	}</span>
 
 
 	/**
@@ -117,40 +114,42 @@ public class ProcessQueueMasterThread extends Thread {
 	 */
 	@Override
 	public void run() {
-<span class="nc" id="L120">		getConnection();</span>
-<span class="nc" id="L121">		AbstractDriverQueue connqueue = null;</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">		while (state == States.STARTED) {</span>
-<span class="nc" id="L123">			ReadFilesConfig readConfig = null;</span>
-<span class="nc" id="L124">			long startTime = 0;</span>
+<span class="fc" id="L117">		getConnection();</span>
+<span class="fc" id="L118">		AbstractDriverQueue connqueue = null;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">		while (state == States.STARTED) {</span>
+			
+<span class="fc" id="L121">			ReadFilesConfig readConfig = null;</span>
+<span class="fc" id="L122">			long startTime = 0;</span>
+			
 			try {
-<span class="nc" id="L126">				readConfig = new ReadFilesConfig();</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">				if (connqueue == null) {</span>
-<span class="nc" id="L128">					connqueue = new AbstractDriverQueue(config);</span>
+<span class="fc" id="L125">				readConfig = new ReadFilesConfig();</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">				if (connqueue == null) {</span>
+<span class="fc" id="L127">					connqueue = new AbstractDriverQueue(config);</span>
 				}
-<span class="nc" id="L130">				String tramaComplete =  connqueue.readQueue();</span>
+<span class="fc" id="L129">				String tramaComplete =  connqueue.readQueue();</span>
 
-<span class="nc" id="L132">				startTime = processTrama(readConfig, startTime, tramaComplete);</span>
-<span class="nc" id="L133">			} catch (Exception error) {</span>
-<span class="nc" id="L134">				LOGGER.error(QueueConstantListener.NAME_LISTENER + this.getClass().getName()</span>
+<span class="fc" id="L131">				startTime = processTrama(readConfig, startTime, tramaComplete);</span>
+<span class="nc" id="L132">			} catch (Exception error) {</span>
+<span class="nc" id="L133">				LOGGER.error(QueueConstantListener.NAME_LISTENER + this.getClass().getName()</span>
 						+ QueueConstantListener.MESSAGE_ERROR_PROCESS, error);
-<span class="nc" id="L136">				NewRelicImpl.addNewRelicError(error);</span>
+<span class="nc" id="L135">				NewRelicImpl.addNewRelicError(error);</span>
 			} finally {
-<span class="nc" id="L138">				long endTime = System.nanoTime(); // Se guarda el tiempo final del proceso.</span>
-<span class="nc" id="L139">				long duration = (endTime - startTime); // Se calcula el tiempo que tomo procesar los datos.</span>
-<span class="nc" id="L140">				NewRelicImpl.addNewRelicMetric(&quot;QueueProcessorAgent&quot;, duration / 1000000); // Se manda la informacion de</span>
+<span class="pc" id="L137">				long endTime = System.nanoTime(); // Se guarda el tiempo final del proceso.</span>
+<span class="pc" id="L138">				long duration = (endTime - startTime); // Se calcula el tiempo que tomo procesar los datos.</span>
+<span class="pc" id="L139">				long timeDuration = duration / 1000000;</span>
+<span class="pc" id="L140">				NewRelicImpl.addNewRelicMetric(&quot;QueueProcessorAgent&quot;, timeDuration); // Se manda la informacion de</span>
 																							// la duracion del proceso a
 																							// NewRelic como metrica.
-<span class="nc" id="L143">				startTime = 0;</span>
-<span class="nc bnc" id="L144" title="All 6 branches missed.">				if (connqueue != null) {</span>
-<span class="nc bnc" id="L145" title="All 6 branches missed.">					if (state != States.STARTED) {</span>
-<span class="nc" id="L146">						connqueue.disconnectService();</span>
-<span class="nc" id="L147">						connqueue = null;</span>
-					}
+<span class="pc" id="L143">				startTime = 0;</span>
+<span class="pc bpc" id="L144" title="10 of 12 branches missed.">				if (connqueue != null &amp;&amp; state != States.STARTED) {</span>
+<span class="nc" id="L145">						connqueue.disconnectService();</span>
+<span class="nc" id="L146">						connqueue = null;</span>
 				}
-<span class="nc" id="L150">			}</span>
-<span class="nc" id="L151">		}</span>
-<span class="nc" id="L152">		executorService.shutdown();</span>
-<span class="nc" id="L153">	}</span>
+<span class="pc" id="L148">			}</span>
+<span class="fc" id="L149">			state = States.SHUTTINGDOWN;</span>
+<span class="fc" id="L150">		}</span>
+<span class="fc" id="L151">		executorService.shutdown();</span>
+<span class="fc" id="L152">	}</span>
 
 	/**
 	 * Process trama.
@@ -159,10 +158,11 @@ public class ProcessQueueMasterThread extends Thread {
 	 * @param startTime the start time
 	 * @param tramaComplete the trama complete
 	 * @return the long
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException 
+	 * @throws Exception the exception
 	 */
-	public long processTrama(ReadFilesConfig readConfig, long startTime, String tramaComplete) throws IOException {
-<span class="pc bpc" id="L165" title="1 of 2 branches missed.">		if (tramaComplete != null) {</span>
+	public long processTrama(ReadFilesConfig readConfig, long startTime, String tramaComplete) throws IOException  {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">		if (tramaComplete != null) {</span>
 <span class="fc" id="L166">			startTime = System.nanoTime();</span>
 <span class="fc" id="L167">			String[] trama = tramaComplete.split(&quot;\\|&quot;);</span>
 
@@ -172,13 +172,17 @@ public class ProcessQueueMasterThread extends Thread {
 <span class="fc bfc" id="L172" title="All 2 branches covered.">			if (detailEvent != null) {</span>
 <span class="fc" id="L173">				LOGGER.info(&quot;Trama: &quot; + tramaComplete + &quot; Evento: &quot; + detailEvent.getName() + &quot; ProductId: &quot;</span>
 <span class="fc" id="L174">						+ detailEvent.getDefaultProduct());</span>
-<span class="fc" id="L175">				methodPost(obtainRequest(trama, detailEvent));</span>
+<span class="fc" id="L175">				String request = obtainRequest(trama, detailEvent);</span>
 
-			} else {
-<span class="fc" id="L178">				LOGGER.info(&quot;Trama no aceptada, por no tener evento valido: &quot; + tramaComplete);</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">				if (request != null) {</span>
+<span class="fc" id="L178">					methodPost(request);</span>
+				}
+
+<span class="fc" id="L181">			} else {</span>
+<span class="fc" id="L182">				LOGGER.info(&quot;Trama no aceptada, por no tener evento valido: &quot; + tramaComplete);</span>
 			}
 		}
-<span class="fc" id="L181">		return startTime;</span>
+<span class="fc" id="L185">		return startTime;</span>
 	}
 
 	/**
@@ -189,87 +193,88 @@ public class ProcessQueueMasterThread extends Thread {
 	 * @return the string
 	 */
 	private String obtainRequest(String[] trama, DetailEventDTO detailEvent) {
-<span class="fc" id="L192">		String request = null;</span>
+<span class="fc" id="L196">		String request = null;</span>
 
-<span class="fc" id="L194">		NotifyMessageDTO notifyMessageDTO = new NotifyMessageDTO();</span>
-<span class="fc" id="L195">		String evenType = trama[0];</span>
-<span class="fc" id="L196">		String uuid = UUID.randomUUID().toString();</span>
-<span class="fc" id="L197">		Calendar cycleCalendar = Calendar.getInstance();</span>
-<span class="fc" id="L198">		final SimpleDateFormat df = new SimpleDateFormat(&quot;yyyyMMdd&quot;);</span>
+<span class="fc" id="L198">		NotifyMessageDTO notifyMessageDTO = new NotifyMessageDTO();</span>
+<span class="fc" id="L199">		String evenType = trama[0];</span>
+<span class="fc" id="L200">		String uuid = UUID.randomUUID().toString();</span>
+<span class="fc" id="L201">		Calendar cycleCalendar = Calendar.getInstance();</span>
+<span class="fc" id="L202">		final SimpleDateFormat df = new SimpleDateFormat(&quot;yyyyMMdd&quot;);</span>
+<span class="fc" id="L203">		String split = params.get(&quot;SUBSCRIBER_SPLIT&quot;);</span>
 
-<span class="pc bpc" id="L200" title="7 of 22 branches missed.">		switch (evenType) {</span>
+<span class="pc bpc" id="L205" title="7 of 22 branches missed.">		switch (evenType) {</span>
 		case &quot;SEGUROS&quot;:
-<span class="fc" id="L202">			String[] subscriber = trama[2].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L203">			String subscId = &quot;&quot;;</span>
-<span class="fc bfc" id="L204" title="All 2 branches covered.">			if (subscriber.length &gt; 1) {</span>
-<span class="fc" id="L205">				subscId = subscriber[1];</span>
+<span class="fc" id="L207">			String[] subscriber = trama[2].split(split);</span>
+<span class="fc" id="L208">			String subscId = &quot;&quot;;</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">			if (subscriber.length &gt; 1) {</span>
+<span class="fc" id="L210">				subscId = subscriber[1];</span>
 			} else {
-<span class="fc" id="L207">				subscriber = trama[3].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L208">				subscId = subscriber[1];</span>
+<span class="fc" id="L212">				subscriber = trama[3].split(split);</span>
+<span class="fc" id="L213">				subscId = subscriber[1];</span>
 			}
-<span class="fc" id="L210">			NotifyMessageDTO object = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId,</span>
-<span class="fc" id="L211">					df.format(cycleCalendar.getTime()));</span>
-<span class="fc" id="L212">			Gson gson = new Gson();</span>
-<span class="fc" id="L213">			return gson.toJson(object);</span>
+<span class="fc" id="L215">			NotifyMessageDTO object = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId,</span>
+<span class="fc" id="L216">					df.format(cycleCalendar.getTime()));</span>
+<span class="fc" id="L217">			Gson gson = new Gson();</span>
+<span class="fc" id="L218">			return gson.toJson(object);</span>
 
 		case &quot;FACTURACION&quot;:
-<span class="fc" id="L216">			String[] subscriber2 = trama[2].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L217">			String subscId2 = &quot;&quot;;</span>
-<span class="fc bfc" id="L218" title="All 2 branches covered.">			if (subscriber2.length &gt; 1) {</span>
-<span class="fc" id="L219">				subscId2 = subscriber2[1];</span>
+<span class="fc" id="L221">			String[] subscriber2 = trama[2].split(split);</span>
+<span class="fc" id="L222">			String subscId2 = &quot;&quot;;</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">			if (subscriber2.length &gt; 1) {</span>
+<span class="fc" id="L224">				subscId2 = subscriber2[1];</span>
 			} else {
-<span class="fc" id="L221">				subscriber2 = trama[3].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L222">				subscId2 = subscriber2[1];</span>
+<span class="fc" id="L226">				subscriber2 = trama[3].split(split);</span>
+<span class="fc" id="L227">				subscId2 = subscriber2[1];</span>
 			}
-<span class="fc" id="L224">			NotifyMessageDTO object2 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId2,</span>
-<span class="fc" id="L225">					df.format(cycleCalendar.getTime()));</span>
-<span class="fc" id="L226">			Gson gson2 = new Gson();</span>
-<span class="fc" id="L227">			return gson2.toJson(object2);</span>
+<span class="fc" id="L229">			NotifyMessageDTO object2 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId2,</span>
+<span class="fc" id="L230">					df.format(cycleCalendar.getTime()));</span>
+<span class="fc" id="L231">			Gson gson2 = new Gson();</span>
+<span class="fc" id="L232">			return gson2.toJson(object2);</span>
 
 		case &quot;PAGOS&quot;:
-<span class="fc" id="L230">			String[] subscriber3 = trama[2].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L231">			String subscId3 = &quot;&quot;;</span>
-<span class="fc bfc" id="L232" title="All 2 branches covered.">			if (subscriber3.length &gt; 1) {</span>
-<span class="fc" id="L233">				subscId3 = subscriber3[1];</span>
+<span class="fc" id="L235">			String[] subscriber3 = trama[2].split(split);</span>
+<span class="fc" id="L236">			String subscId3 = &quot;&quot;;</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">			if (subscriber3.length &gt; 1) {</span>
+<span class="fc" id="L238">				subscId3 = subscriber3[1];</span>
 			} else {
-<span class="fc" id="L235">				subscriber3 = trama[3].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L236">				subscId3 = subscriber3[1];</span>
+<span class="fc" id="L240">				subscriber3 = trama[3].split(split);</span>
+<span class="fc" id="L241">				subscId3 = subscriber3[1];</span>
 			}
-<span class="fc" id="L238">			NotifyMessageDTO object3 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId3,</span>
-<span class="fc" id="L239">					df.format(cycleCalendar.getTime()));</span>
-<span class="fc" id="L240">			Gson gson3 = new Gson();</span>
-<span class="fc" id="L241">			return gson3.toJson(object3);</span>
+<span class="fc" id="L243">			NotifyMessageDTO object3 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId3,</span>
+<span class="fc" id="L244">					df.format(cycleCalendar.getTime()));</span>
+<span class="fc" id="L245">			Gson gson3 = new Gson();</span>
+<span class="fc" id="L246">			return gson3.toJson(object3);</span>
 
 		case &quot;CONSULTA&quot;:
-<span class="fc" id="L244">			String[] subscriber4 = trama[2].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L245">			String subscId4 = &quot;&quot;;</span>
-<span class="fc bfc" id="L246" title="All 2 branches covered.">			if (subscriber4.length &gt; 1) {</span>
-<span class="fc" id="L247">				subscId4 = subscriber4[1];</span>
+<span class="fc" id="L249">			String[] subscriber4 = trama[2].split(split);</span>
+<span class="fc" id="L250">			String subscId4 = &quot;&quot;;</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">			if (subscriber4.length &gt; 1) {</span>
+<span class="fc" id="L252">				subscId4 = subscriber4[1];</span>
 			} else {
-<span class="fc" id="L249">				subscriber4 = trama[3].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L250">				subscId4 = subscriber4[1];</span>
+<span class="fc" id="L254">				subscriber4 = trama[3].split(split);</span>
+<span class="fc" id="L255">				subscId4 = subscriber4[1];</span>
 			}
-<span class="fc" id="L252">			NotifyMessageDTO object4 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId4,</span>
-<span class="fc" id="L253">					df.format(cycleCalendar.getTime()));</span>
-<span class="fc" id="L254">			Gson gson4 = new Gson();</span>
-<span class="fc" id="L255">			return gson4.toJson(object4);</span>
+<span class="fc" id="L257">			NotifyMessageDTO object4 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId4,</span>
+<span class="fc" id="L258">					df.format(cycleCalendar.getTime()));</span>
+<span class="fc" id="L259">			Gson gson4 = new Gson();</span>
+<span class="fc" id="L260">			return gson4.toJson(object4);</span>
 
 		case &quot;PAGOS_DEACTIVATE&quot;:
-<span class="fc" id="L258">			String[] subscriber5 = trama[2].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L259">			String subscId5 = &quot;&quot;;</span>
-<span class="fc bfc" id="L260" title="All 2 branches covered.">			if (subscriber5.length &gt; 1) {</span>
-<span class="fc" id="L261">				subscId5 = subscriber5[1];</span>
+<span class="fc" id="L263">			String[] subscriber5 = trama[2].split(split);</span>
+<span class="fc" id="L264">			String subscId5 = &quot;&quot;;</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">			if (subscriber5.length &gt; 1) {</span>
+<span class="fc" id="L266">				subscId5 = subscriber5[1];</span>
 			} else {
-<span class="fc" id="L263">				subscriber5 = trama[3].split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="fc" id="L264">				subscId5 = subscriber5[1];</span>
+<span class="fc" id="L268">				subscriber5 = trama[3].split(split);</span>
+<span class="fc" id="L269">				subscId5 = subscriber5[1];</span>
 			}
-<span class="fc" id="L266">			NotifyMessageDTO object5 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId5,</span>
-<span class="fc" id="L267">					df.format(cycleCalendar.getTime()));</span>
-<span class="fc" id="L268">			Gson gson5 = new Gson();</span>
-<span class="fc" id="L269">			return gson5.toJson(object5);</span>
+<span class="fc" id="L271">			NotifyMessageDTO object5 = generatedRequest(trama, detailEvent, notifyMessageDTO, evenType, uuid, subscId5,</span>
+<span class="fc" id="L272">					df.format(cycleCalendar.getTime()));</span>
+<span class="fc" id="L273">			Gson gson5 = new Gson();</span>
+<span class="fc" id="L274">			return gson5.toJson(object5);</span>
+		default:
+<span class="nc" id="L276">			return request;</span>
 		}
-
-<span class="nc" id="L272">		return request;</span>
 	}
 
 	/**
@@ -286,15 +291,15 @@ public class ProcessQueueMasterThread extends Thread {
 	 */
 	private NotifyMessageDTO generatedRequest(String[] trama, DetailEventDTO detailEvent,
 			NotifyMessageDTO notifyMessageDTO, String evenType, String uuid, String subscriber, String fecha) {
-<span class="fc" id="L289">		notifyMessageDTO.setEventType(evenType);</span>
-<span class="fc" id="L290">		notifyMessageDTO.setChannelId(String.valueOf(detailEvent.getChannelId()));</span>
-<span class="fc" id="L291">		notifyMessageDTO.setOrderType(detailEvent.getDefaultOrder());</span>
-<span class="fc" id="L292">		notifyMessageDTO.setProductId(Integer.valueOf(detailEvent.getDefaultProduct()));</span>
-<span class="fc" id="L293">		notifyMessageDTO.setSubscriberId(subscriber);</span>
-<span class="fc" id="L294">		notifyMessageDTO.setDate(fecha);</span>
-<span class="fc" id="L295">		notifyMessageDTO.setTransactionId(uuid);</span>
-<span class="fc" id="L296">		notifyMessageDTO.setAdditionalsParams(getAdditionalParams(trama));</span>
-<span class="fc" id="L297">		return notifyMessageDTO;</span>
+<span class="fc" id="L294">		notifyMessageDTO.setEventType(evenType);</span>
+<span class="fc" id="L295">		notifyMessageDTO.setChannelId(String.valueOf(detailEvent.getChannelId()));</span>
+<span class="fc" id="L296">		notifyMessageDTO.setOrderType(detailEvent.getDefaultOrder());</span>
+<span class="fc" id="L297">		notifyMessageDTO.setProductId(Integer.valueOf(detailEvent.getDefaultProduct()));</span>
+<span class="fc" id="L298">		notifyMessageDTO.setSubscriberId(subscriber);</span>
+<span class="fc" id="L299">		notifyMessageDTO.setDate(fecha);</span>
+<span class="fc" id="L300">		notifyMessageDTO.setTransactionId(uuid);</span>
+<span class="fc" id="L301">		notifyMessageDTO.setAdditionalsParams(getAdditionalParams(trama));</span>
+<span class="fc" id="L302">		return notifyMessageDTO;</span>
 	}
 
 	/**
@@ -305,38 +310,38 @@ public class ProcessQueueMasterThread extends Thread {
 	 */
 	private List&lt;AttributeValuePair&gt; getAdditionalParams(String[] trama) {
 
-<span class="fc" id="L308">		List&lt;AttributeValuePair&gt; list = new ArrayList&lt;AttributeValuePair&gt;();</span>
+<span class="fc" id="L313">		List&lt;AttributeValuePair&gt; list = new ArrayList&lt;AttributeValuePair&gt;();</span>
 
-<span class="fc bfc" id="L310" title="All 2 branches covered.">		for (int i = 0; i &lt; trama.length; i++) {</span>
-<span class="fc" id="L311">			AttributeValuePair attributeValuePair = new AttributeValuePair();</span>
-<span class="fc bfc" id="L312" title="All 2 branches covered.">			if (i == 0) {</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">		for (int i = 0; i &lt; trama.length; i++) {</span>
+<span class="fc" id="L316">			AttributeValuePair attributeValuePair = new AttributeValuePair();</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">			if (i == 0) {</span>
 
-<span class="fc" id="L314">				attributeValuePair.setAttribute(&quot;EVENT&quot;);</span>
-<span class="fc" id="L315">				attributeValuePair.setValue(trama[0]);</span>
-<span class="fc" id="L316">				list.add(attributeValuePair);</span>
-<span class="fc bfc" id="L317" title="All 2 branches covered.">			} else if (i == 1) {</span>
-
-<span class="fc" id="L319">				attributeValuePair.setAttribute(&quot;SUBEVENT&quot;);</span>
-<span class="fc" id="L320">				attributeValuePair.setValue(trama[1]);</span>
+<span class="fc" id="L319">				attributeValuePair.setAttribute(&quot;EVENT&quot;);</span>
+<span class="fc" id="L320">				attributeValuePair.setValue(trama[0]);</span>
 <span class="fc" id="L321">				list.add(attributeValuePair);</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">			} else if (i == 1) {</span>
+
+<span class="fc" id="L324">				attributeValuePair.setAttribute(&quot;SUBEVENT&quot;);</span>
+<span class="fc" id="L325">				attributeValuePair.setValue(trama[1]);</span>
+<span class="fc" id="L326">				list.add(attributeValuePair);</span>
 			} else {
 
-<span class="fc" id="L324">				String tramaF = trama[i];</span>
-<span class="fc bfc" id="L325" title="All 2 branches covered.">				if ((i+1) == trama.length) {</span>
-<span class="fc" id="L326">					tramaF = tramaF.replaceAll(&quot; &quot;, &quot;&quot;);</span>
-<span class="fc" id="L327">					tramaF = tramaF.replaceAll(&quot;\u0000&quot;, &quot;&quot;);</span>
-<span class="fc" id="L328">					tramaF = tramaF.replaceAll(&quot;\u000f&quot;, &quot;&quot;);</span>
+<span class="fc" id="L329">				String tramaF = trama[i];</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">				if ((i+1) == trama.length) {</span>
+<span class="fc" id="L331">					tramaF = tramaF.replaceAll(&quot; &quot;, &quot;&quot;);</span>
+<span class="fc" id="L332">					tramaF = tramaF.replaceAll(&quot;\u0000&quot;, &quot;&quot;);</span>
+<span class="fc" id="L333">					tramaF = tramaF.replaceAll(&quot;\u000f&quot;, &quot;&quot;);</span>
 				}
 
-<span class="fc" id="L331">				String[] attribute = tramaF.split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
-<span class="pc bpc" id="L332" title="1 of 2 branches missed.">				if (!attribute[0].equals(&quot;&quot;)) {</span>
-<span class="fc" id="L333">					attributeValuePair.setAttribute(attribute[0]);</span>
-<span class="fc bfc" id="L334" title="All 2 branches covered.">					attributeValuePair.setValue(attribute.length &gt; 1 ? attribute[1] : &quot;&quot;);</span>
-<span class="fc" id="L335">					list.add(attributeValuePair);</span>
+<span class="fc" id="L336">				String[] attribute = tramaF.split(params.get(&quot;SUBSCRIBER_SPLIT&quot;));</span>
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">				if (!attribute[0].equals(&quot;&quot;)) {</span>
+<span class="fc" id="L338">					attributeValuePair.setAttribute(attribute[0]);</span>
+<span class="fc bfc" id="L339" title="All 2 branches covered.">					attributeValuePair.setValue(attribute.length &gt; 1 ? attribute[1] : &quot;&quot;);</span>
+<span class="fc" id="L340">					list.add(attributeValuePair);</span>
 				}
 			}
 		}
-<span class="fc" id="L339">		return list;</span>
+<span class="fc" id="L344">		return list;</span>
 	}
 
 	/**
@@ -346,39 +351,39 @@ public class ProcessQueueMasterThread extends Thread {
 	 * @return the string
 	 */
 	private String methodPost(String request) {
-<span class="fc" id="L349">		StringBuffer content = null;</span>
+<span class="fc" id="L354">		StringBuilder content = null;</span>
 		try {
 
-<span class="fc" id="L352">			String urlFinal = params.get(&quot;URL_NOTIFY_EVENT&quot;);</span>
-<span class="fc" id="L353">			LOGGER.info(urlFinal);</span>
+<span class="fc" id="L357">			String urlFinal = params.get(&quot;URL_NOTIFY_EVENT&quot;);</span>
+<span class="fc" id="L358">			LOGGER.info(urlFinal);</span>
 
-<span class="fc" id="L355">			URL url = new URL(urlFinal);</span>
-<span class="fc" id="L356">			HttpURLConnection con = (HttpURLConnection) url.openConnection();</span>
-<span class="fc" id="L357">			con.setDoOutput(true);</span>
-<span class="fc" id="L358">			con.setRequestMethod(&quot;POST&quot;);</span>
-<span class="fc" id="L359">			con.setConnectTimeout(5000);</span>
-<span class="fc" id="L360">			con.setReadTimeout(5000);</span>
-<span class="fc" id="L361">			con.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);</span>
+<span class="fc" id="L360">			URL url = new URL(urlFinal);</span>
+<span class="fc" id="L361">			HttpURLConnection con = (HttpURLConnection) url.openConnection();</span>
+<span class="fc" id="L362">			con.setDoOutput(true);</span>
+<span class="fc" id="L363">			con.setRequestMethod(&quot;POST&quot;);</span>
+<span class="fc" id="L364">			con.setConnectTimeout(5000);</span>
+<span class="fc" id="L365">			con.setReadTimeout(5000);</span>
+<span class="fc" id="L366">			con.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);</span>
 
-<span class="fc" id="L363">			byte[] outputInBytes = request.getBytes(&quot;UTF-8&quot;);</span>
-<span class="fc" id="L364">			OutputStream os = con.getOutputStream();</span>
-<span class="fc" id="L365">			os.write(outputInBytes);</span>
-<span class="fc" id="L366">			os.flush();</span>
+<span class="fc" id="L368">			byte[] outputInBytes = request.getBytes(&quot;UTF-8&quot;);</span>
+<span class="fc" id="L369">			OutputStream os = con.getOutputStream();</span>
+<span class="fc" id="L370">			os.write(outputInBytes);</span>
+<span class="fc" id="L371">			os.flush();</span>
 
-<span class="fc" id="L368">			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));</span>
+<span class="fc" id="L373">			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));</span>
 			String inputLine;
-<span class="fc" id="L370">			content = new StringBuffer();</span>
-<span class="fc bfc" id="L371" title="All 2 branches covered.">			while ((inputLine = in.readLine()) != null) {</span>
-<span class="fc" id="L372">				content.append(inputLine);</span>
+<span class="fc" id="L375">			content = new StringBuilder();</span>
+<span class="fc bfc" id="L376" title="All 2 branches covered.">			while ((inputLine = in.readLine()) != null) {</span>
+<span class="fc" id="L377">				content.append(inputLine);</span>
 			}
-<span class="fc" id="L374">			in.close();</span>
-<span class="fc" id="L375">			con.disconnect();</span>
-<span class="fc" id="L376">			LOGGER.info(content.toString());</span>
-<span class="nc" id="L377">		} catch (IOException e) {</span>
-<span class="nc" id="L378">			LOGGER.error(&quot;ERROR: en api Notifyevent: &quot; + e.getMessage());</span>
-<span class="nc" id="L379">			e.printStackTrace();</span>
-<span class="fc" id="L380">		}</span>
-<span class="fc" id="L381">		return content.toString();</span>
+<span class="fc" id="L379">			in.close();</span>
+<span class="fc" id="L380">			con.disconnect();</span>
+<span class="fc" id="L381">			LOGGER.info(content.toString());</span>
+<span class="nc" id="L382">		} catch (Exception e) {</span>
+<span class="nc" id="L383">			LOGGER.error(&quot;ERROR: en api Notifyevent: &quot; + e.getMessage());</span>
+<span class="nc" id="L384">			return &quot;&quot;;</span>
+<span class="fc" id="L385">		}</span>
+<span class="fc" id="L386">		return content.toString();</span>
 	}
 	
 	
@@ -389,34 +394,35 @@ public class ProcessQueueMasterThread extends Thread {
 	 */
 	@SuppressWarnings(&quot;unchecked&quot;)
 	private void getConnection() {
-<span class="nc" id="L392">		OcepManager manager = null;</span>
+<span class="fc" id="L397">		OcepManager manager = null;</span>
 		try {
-<span class="nc" id="L394">			ServiceSessionEJBLocal&lt;OcepManager&gt; serviceSession = ServiceSessionEJB.getInstance();</span>
-<span class="nc" id="L395">			manager = (OcepManager) serviceSession.getSessionDataSource(OcepManager.class,</span>
+<span class="nc" id="L399">			ServiceSessionEJBLocal&lt;OcepManager&gt; serviceSession = ServiceSessionEJB.getInstance();</span>
+<span class="nc" id="L400">			manager = serviceSession.getSessionDataSource(OcepManager.class,</span>
 					QueueConstantListener.DATASOURCE_CPE);
-<span class="nc" id="L397">			params = manager.listAllParam();</span>
-<span class="nc" id="L398">		} catch (Exception e) {</span>
-<span class="nc" id="L399">			state = States.SHUTTINGDOWN;</span>
-<span class="nc" id="L400">			LOGGER.error(QueueConstantListener.UNABLE_INITIALIZE + e.getMessage(), e);</span>
+<span class="nc" id="L402">			params = manager.listAllParam();</span>
+<span class="fc" id="L403">		} catch (PersistenceException e) {</span>
+<span class="fc" id="L404">			LOGGER.error(QueueConstantListener.ERROR_CONNECTION + e.getMessage(), e);</span>
 		} finally {
-<span class="nc bnc" id="L402" title="All 6 branches missed.">			if (manager != null) {</span>
+<span class="pc bpc" id="L406" title="5 of 6 branches missed.">			if (manager != null) {</span>
 				try {
-<span class="nc" id="L404">					manager.close();</span>
-<span class="nc" id="L405">				} catch (PersistenceException e) {</span>
-<span class="nc" id="L406">					LOGGER.error(QueueConstantListener.COULD_NOT_CLOSE);</span>
-<span class="nc" id="L407">				}</span>
+<span class="nc" id="L408">					manager.close();</span>
+<span class="nc" id="L409">				} catch (PersistenceException e) {</span>
+<span class="nc" id="L410">					LOGGER.error(QueueConstantListener.COULD_NOT_CLOSE);</span>
+<span class="nc" id="L411">				}</span>
 			}
-<span class="nc" id="L409">		}</span>
-<span class="nc" id="L410">	}</span>
+<span class="nc" id="L413">		}</span>
+<span class="fc" id="L414">	}</span>
+
+
 
 	/**
-	 * Gets the executor service.
+	 * Sets the params.
 	 *
-	 * @return the executor service
+	 * @param params the params
 	 */
-	public ThreadPoolExecutor getExecutorService() {
-<span class="nc" id="L418">		return executorService;</span>
-	}
+	public void setParams(Map&lt;String, String&gt; params) {
+<span class="fc" id="L424">		this.params = params;</span>
+<span class="fc" id="L425">	}</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
