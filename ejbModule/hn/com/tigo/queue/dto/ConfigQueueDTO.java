@@ -5,9 +5,8 @@ package hn.com.tigo.queue.dto;
 
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ConfigQueueDTO.
+ * This class contains the necessary attributes for the ConfigQueueDTO object.
  *
  * @author Leonardo Vijil
  * @version 1.0.0

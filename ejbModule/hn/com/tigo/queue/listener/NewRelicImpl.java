@@ -4,7 +4,7 @@ package hn.com.tigo.queue.listener;
 import com.newrelic.api.agent.NewRelic;
 
 /**
- * NewRelicImpl.
+ * This class contains methods referring to new relic, which maps the metrics of the project.
  *
  * @author Maria Fernanda Reyes
  * @version 1.0.0

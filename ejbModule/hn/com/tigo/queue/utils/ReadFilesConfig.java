@@ -11,9 +11,8 @@ import hn.com.tigo.queue.dto.ConfigEventDTO;
 import hn.com.tigo.queue.dto.ConfigQueueDTO;
 import hn.com.tigo.queue.dto.DetailEventDTO;
 
-// TODO: Auto-generated Javadoc
 /**
- * ReadFilesConfig.
+ * This class is a reference for reading configuration files.
  *
  * @author Yuny Rene Rodriguez Perez {@literal<mailto: yrodriguez@hightech-corp.com />}
  * @version  1.0.0

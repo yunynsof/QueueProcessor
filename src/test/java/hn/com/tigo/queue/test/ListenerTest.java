@@ -11,12 +11,22 @@ import hn.com.tigo.queue.dto.DetailQueueDTO;
 import hn.com.tigo.queue.listener.ProcessQueueMasterThread;
 import hn.com.tigo.queue.utils.ReadFilesConfig;
 
+/**
+ * ListenerTest.
+ *
+ * @author Yuny Rene Rodriguez Perez {@literal<mailto: yrodriguez@hightech-corp.com />}
+ * @version  1.0.0
+ * @since 08-25-2022 12:07:39 PM 2022
+ */
 public class ListenerTest {
 
+	/**
+	 * Test.
+	 */
 	@Test
 	public void test() {
 		DetailQueueDTO queue = new DetailQueueDTO();
-		queue.setQueueIPAddress("192.168.0.7");
+		queue.setQueueIPAddress("192.168.0.231");
 		queue.setQueueUser("USRCPE");
 		queue.setQueuePassword("SRCP2015");
 		queue.setQueuelibName("V4STCD");
@@ -28,7 +38,7 @@ public class ListenerTest {
 		params.put("SUBSCRIBER_SPLIT", "=");
 		params.put("URL_NOTIFY_EVENT", "http://192.168.159.46:7004/NotifyEvent/NotifyQueue/dist");
 		thread.setParams(params);
-		thread.run();
+		//thread.run();
 		
 		ReadFilesConfig readConfig = new ReadFilesConfig();
 		long startTime = 0;

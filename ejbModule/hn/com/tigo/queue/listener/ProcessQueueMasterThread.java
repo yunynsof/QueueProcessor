@@ -146,7 +146,6 @@ public class ProcessQueueMasterThread extends Thread {
 						connqueue = null;
 				}
 			}
-			state = States.SHUTTINGDOWN;
 		}
 		executorService.shutdown();
 	}

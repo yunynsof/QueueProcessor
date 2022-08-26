@@ -2,9 +2,8 @@ package hn.com.tigo.queue.dto;
 
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ConfigEventDTO.
+ * This class contains the necessary attributes for the ConfigEventDTO object.
  *
  * @author Leonardo Vijil
  * @version 1.0.0

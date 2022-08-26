@@ -1,8 +1,7 @@
 package hn.com.tigo.queue.dto;
 
-// TODO: Auto-generated Javadoc
 /**
- * DetailSubEventDTO.
+ * This class contains the necessary attributes for the DetailSubEventDTO object, and makes up the object DetailEventDTO.
  *
  * @author Yuny Rene Rodriguez Perez {@literal<mailto: yrodriguez@hightech-corp.com />}
  * @version  1.0.0

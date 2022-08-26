@@ -2,9 +2,8 @@ package hn.com.tigo.queue.dto;
 
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
- * DetailEventDTO.
+ * This class contains the necessary attributes for the DetailEventDTO object, and makes up the object ConfigQueueDTO.
  *
  * @author Yuny Rene Rodriguez Perez {@literal<mailto: yrodriguez@hightech-corp.com />}
  * @version  1.0.0
